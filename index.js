@@ -1,3 +1,4 @@
+
 // Import express and request modules
 var express = require('express');
 var request = require('request');
@@ -53,7 +54,11 @@ app.get('/oauth', function(req, res) {
     }
 });
 
+const data = require('./deliveryOptions.json');
+
 // Route the endpoint that our slash command will point to and send back a simple response to indicate that ngrok is working
 app.post('/command', function(req, res) {
-    res.send('Your ngrok tunnel is up and running!');
+    res.json(data);
+
+
 });
