@@ -2,6 +2,7 @@
 // Import express and request modules
 var express = require('express');
 var request = require('request');
+const bodyParser = require ('body-parser');
 
 // Store our app's ID and Secret. These we got from Step 1.
 // For this tutorial, we'll keep your API credentials right here. But for an actual app, you'll want to  store them securely in environment variables.
@@ -11,9 +12,12 @@ var clientSecret = process.env.SLACK_CLIENT_SECRET;
 // Instantiates Express and assigns our app variable to it
 var app = express();
 
+app.use (bodyParser.json ());
+app.use (bodyParser.urlencoded ({extended: true}));
+
 
 // Again, we define a port we want to listen to
-const PORT=4390;
+const PORT=3000;
 
 // Lets start our server
 app.listen(PORT, function () {
@@ -54,11 +58,29 @@ app.get('/oauth', function(req, res) {
     }
 });
 
-const data = require('./deliveryOptions.json');
 
 // Route the endpoint that our slash command will point to and send back a simple response to indicate that ngrok is working
 app.post('/command', function(req, res) {
-    res.json(data);
 
+});
+
+app.post('/name', function(req, res) {
+    var name = req.body.text;
+
+    res.send('You chosen ' + name + ' pizza');
+
+});
+
+app.post('/size', function(req, res) {
+    var size = req.body.text;
+
+    res.send('The size of your pizza: ' + size + ' cm');
+
+});
+
+app.post('/address', function(req, res) {
+    var address = req.body.text;
+
+    res.send('We will deliver pizza to ' + address);
 
 });
