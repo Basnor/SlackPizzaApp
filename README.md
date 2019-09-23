@@ -1,4 +1,4 @@
-# SlackPizzaBot
+# SlackPizzaApp
 
 Подключить модули:
 * npm install
