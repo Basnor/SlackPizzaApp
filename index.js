@@ -1,11 +1,7 @@
-
-// Import express and request modules
 var express = require('express');
 var request = require('request');
 const bodyParser = require ('body-parser');
 
-// Store our app's ID and Secret. These we got from Step 1.
-// For this tutorial, we'll keep your API credentials right here. But for an actual app, you'll want to  store them securely in environment variables.
 var clientId = process.env.SLACK_CLIENT_ID;
 var clientSecret = process.env.SLACK_CLIENT_SECRET;
 
@@ -16,7 +12,6 @@ app.use (bodyParser.json ());
 app.use (bodyParser.urlencoded ({extended: true}));
 
 
-// Again, we define a port we want to listen to
 const PORT=3000;
 
 // Lets start our server
@@ -58,29 +53,95 @@ app.get('/oauth', function(req, res) {
     }
 });
 
+var MongoClient = require('mongodb').MongoClient;
+var url = 'mongodb://localhost:27018/';
 
-// Route the endpoint that our slash command will point to and send back a simple response to indicate that ngrok is working
-app.post('/command', function(req, res) {
+let order;
+var address = null;
+var name = null;
+var size = null;
 
+app.post('/clear', function(req, res) {
+    address = null;
+    name = null;
+    size = null;
+    res.send('You can input again');
 });
 
 app.post('/name', function(req, res) {
-    var name = req.body.text;
+    var name1 = req.body.text;
+    res.send('You chosen ' + name1 + ' pizza');
+    name = name1;
 
-    res.send('You chosen ' + name + ' pizza');
+    console.log("HERE 1 ");
+
+    if (checkOrder()) {
+        res.send('Your order has been accepted.');
+    }
 
 });
 
 app.post('/size', function(req, res) {
-    var size = req.body.text;
+    var size1 = req.body.text;
+    res.send('The size of your pizza: ' + size1 + ' cm');
+    size = size1;
 
-    res.send('The size of your pizza: ' + size + ' cm');
+    if (checkOrder()) {
+        res.send('Your order has been accepted.');
+    }
 
 });
 
 app.post('/address', function(req, res) {
-    var address = req.body.text;
+    var address1 = req.body.text;
+    res.send('We will deliver pizza to ' + address1);
+    address = address1;
 
-    res.send('We will deliver pizza to ' + address);
+    if (checkOrder()) {
+        res.send('Your order has been accepted.');
+    }
 
 });
+
+function checkOrder() {
+
+    if ((name == null) ||
+        (size == null) ||
+        (address == null)) {
+
+        return false;
+    }
+
+
+    //
+    const mongoClient = new MongoClient(url, { useNewUrlParser: true });
+
+    mongoClient.connect(function(err, client) {
+        const db = client.db("ordersdb");
+        const collection = db.collection("orders");
+
+        let order = {
+            Name: name,
+            Size: size,
+            Address: address
+        };
+
+        collection.insertOne(order, function(err, result){
+
+            if(err){
+                return console.log(err);
+            }
+            console.log(result.ops);
+            client.close();
+        });
+
+        address = null;
+        name = null;
+        size = null;
+
+    });
+
+
+    return true;
+
+}
