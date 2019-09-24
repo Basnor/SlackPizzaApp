@@ -9,7 +9,7 @@ const dbName = 'ordersdb';
 module.exports.insertOrder = function(doc, callback) {
     
     mongoClient.connect(url, function(err, client) {
-        if(err){
+        if(err) {
             return console.log(err);
         }
     
@@ -17,8 +17,7 @@ module.exports.insertOrder = function(doc, callback) {
         const collection = db.collection("orders");
 
         collection.insertOne(doc, function(err, doc){
-
-            if(err){
+            if(err) {
                 return console.log(err);
             }
             callback(doc);

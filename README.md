@@ -6,6 +6,7 @@
 * npm install express --save
 * npm install request --save
 * npm install mongodb --save
+* npm install dotenv --save
 
 
 Добавить .env файл с переменными:
@@ -16,6 +17,6 @@
 
 Для работы запустить:
 * ngrok http 4390
-* sudo node index.js
+* sudo node app.js 
 * mongod --port 27018
 * mongo --host localhost:27018
