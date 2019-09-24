@@ -1,3 +1,4 @@
+require('dotenv').config();
 var express = require('express');
 var request = require('request');
 const bodyParser = require ('body-parser');
@@ -12,7 +13,7 @@ app.use (bodyParser.json ());
 app.use (bodyParser.urlencoded ({extended: true}));
 
 
-const PORT=3000;
+const PORT=process.env.PORT_SERVER;
 
 // Lets start our server
 app.listen(PORT, function () {
@@ -53,95 +54,50 @@ app.get('/oauth', function(req, res) {
     }
 });
 
-var MongoClient = require('mongodb').MongoClient;
-var url = 'mongodb://localhost:27018/';
 
-let order;
-var address = null;
-var name = null;
-var size = null;
 
-app.post('/clear', function(req, res) {
-    address = null;
-    name = null;
-    size = null;
-    res.send('You can input again');
+var queries = require('./services/db');
+
+var order = {
+    name: '',
+    size: '',
+    address: ''
+};
+
+app.post('/', function (req, res) {
+
+    res.send('Enter order details');
+
+});
+
+app.post('/accept', function (req, res) {
+
+    const doc = order;
+
+    queries.insertOrder(doc, function (doc) {
+        res.send('Your order has been accepted');
+    });
+
 });
 
 app.post('/name', function(req, res) {
-    var name1 = req.body.text;
-    res.send('You chosen ' + name1 + ' pizza');
-    name = name1;
-
-    console.log("HERE 1 ");
-
-    if (checkOrder()) {
-        res.send('Your order has been accepted.');
-    }
-
+    order.name = req.body.text;
+    return formOrder(res);
 });
 
 app.post('/size', function(req, res) {
-    var size1 = req.body.text;
-    res.send('The size of your pizza: ' + size1 + ' cm');
-    size = size1;
-
-    if (checkOrder()) {
-        res.send('Your order has been accepted.');
-    }
-
+    order.size= req.body.text;
+    return formOrder(res);
 });
 
 app.post('/address', function(req, res) {
-    var address1 = req.body.text;
-    res.send('We will deliver pizza to ' + address1);
-    address = address1;
-
-    if (checkOrder()) {
-        res.send('Your order has been accepted.');
-    }
-
+    order.address=req.body.text;
+    return formOrder(res);
 });
 
-function checkOrder() {
-
-    if ((name == null) ||
-        (size == null) ||
-        (address == null)) {
-
-        return false;
-    }
-
-
-    //
-    const mongoClient = new MongoClient(url, { useNewUrlParser: true });
-
-    mongoClient.connect(function(err, client) {
-        const db = client.db("ordersdb");
-        const collection = db.collection("orders");
-
-        let order = {
-            Name: name,
-            Size: size,
-            Address: address
-        };
-
-        collection.insertOne(order, function(err, result){
-
-            if(err){
-                return console.log(err);
-            }
-            console.log(result.ops);
-            client.close();
-        });
-
-        address = null;
-        name = null;
-        size = null;
-
-    });
-
-
-    return true;
-
+function formOrder(res) {
+    return res.send( 'You enter new value' + '\n' +
+        'Name: ' + order.name + '\n' +
+        'Sise: ' + order.size + '\n' +
+        'Address: ' + order.address );
 }
