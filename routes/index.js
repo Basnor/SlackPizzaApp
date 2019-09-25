@@ -8,8 +8,7 @@ var clientSecret = process.env.SLACK_CLIENT_SECRET;
 
 // GET /
 router.get('/', function(req, res) {
-    // Web here
-    res.send('Ngrok is working! Path Hit: ' + req.url);
+    res.sendFile( '/home.html', { root: __dirname+ '/../views'});
 });
 
 // GET /oauth
