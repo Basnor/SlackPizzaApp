@@ -16,6 +16,11 @@ router.post('/', function (req, res) {
 router.post('/accept', function (req, res) {
     queries.insertOrder(order, function (doc) {
         res.send('Your order has been accepted');
+        order = {
+            name: '',
+            size: '',
+            address: ''
+        };
     });
 });
 
